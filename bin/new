@@ -1,0 +1,18 @@
+#!/bin/bash
+# new <name>: copy template/ to videos/<name>.
+set -euo pipefail
+ROOT=$(cd "$(dirname "$0")/.." && pwd)
+NAME=${1:?usage: bin/new <name>}
+DEST="$ROOT/videos/$NAME"
+[ -e "$DEST" ] && { echo "$DEST already exists" >&2; exit 1; }
+mkdir -p "$ROOT/videos"
+cp -R "$ROOT/template" "$DEST"
+python3 - "$DEST" "$NAME" <<'PY'
+import json, sys
+d, n = sys.argv[1:]
+for f in ("meta.json", "package.json"):
+    p = f"{d}/{f}"; j = json.load(open(p)); j["name"] = n
+    if f == "meta.json": j["id"] = n
+    open(p, "w").write(json.dumps(j, indent=2) + "\n")
+PY
+echo "created videos/$NAME"

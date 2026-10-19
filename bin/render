@@ -1,0 +1,14 @@
+#!/bin/bash
+# render <project> [fps]: render renders/<name>.mp4, then print size, loudness and a 12-frame contact sheet.
+source "$(dirname "$0")/_common.sh"
+FPS=${2:-60}
+build_audio
+cd "$PROJ"
+mkdir -p renders .hyperframes
+OUT="renders/$NAME.mp4"
+$HF render --fps "$FPS" --quality delivery ${HF_GPU:+--browser-gpu} -o "$OUT"
+ffprobe -v error -show_entries stream=codec_type,width,height,r_frame_rate:format=duration,size -of compact "$OUT"
+ffmpeg -hide_banner -i "$OUT" -vn -af loudnorm=print_format=summary -f null - 2>&1 | grep -E "Input Integrated|Input True Peak"
+D=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$OUT")
+ffmpeg -hide_banner -loglevel error -y -i "$OUT" -vf "fps=12/$D,scale=320:-1,tile=6x2" -frames:v 1 .hyperframes/render-sheet.jpg
+echo "done: $PROJ/$OUT (sheet: .hyperframes/render-sheet.jpg)"

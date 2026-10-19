@@ -1,0 +1,7 @@
+#!/bin/bash
+# check <project>: build audio if stale, then HyperFrames lint and check. Aim for 0 errors, contrast included.
+source "$(dirname "$0")/_common.sh"
+build_audio
+cd "$PROJ"
+$HF lint
+$HF check ${HF_GPU:+--browser-gpu}

@@ -1,0 +1,10 @@
+#!/bin/bash
+# snap <project> <t1,t2,...> [label]: stills at those seconds into <project>/.hyperframes/<label>/. Look at every one.
+source "$(dirname "$0")/_common.sh"
+TIMES=${2:?usage: bin/snap <project> <t1,t2,...> [label]}
+LABEL=${3:-snap}
+build_audio
+cd "$PROJ"
+rm -rf ".hyperframes/$LABEL"
+$HF snapshot --at "$TIMES" --no-end --describe false ${HF_GPU:+--browser-gpu} --timeout 120000 -o ".hyperframes/$LABEL"
+ls ".hyperframes/$LABEL"

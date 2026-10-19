@@ -1,0 +1,8 @@
+videos/
+renders/
+.hyperframes/
+node_modules/
+*.wav
+*.mp4
+cloud/hosts
+.DS_Store
